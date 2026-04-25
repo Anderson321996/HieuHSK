@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chinh Phục HSK 1</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        /* === STRICT NO-SCROLL GLOBALS === */
+        html, body {
+            overflow: hidden !important;
+            height: 100vh !important;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .app-container {
+            height: 100vh !important;
+            overflow: hidden !important;
+        }
+
+        .content-area {
+            height: 100vh !important;
+            overflow: hidden !important; /* Force hide scrollbar */
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 1rem !important; /* reduce bottom padding */
+        }
+
+        .tab-content.active {
+            flex: 1;
+            display: flex !important;
+            flex-direction: column;
+            overflow: hidden !important;
+            height: 100%;
+        }
+
+        /* Compact All Headers */
+        .tab-content > header {
+            margin-bottom: 0.5rem !important;
+            flex-shrink: 0;
+        }
+        .tab-content > header h2 {
+            font-size: 1.25rem !important;
+            margin-bottom: 0 !important;
+        }
+        .tab-content > header p {
+            font-size: 0.85rem !important;
+            margin-bottom: 0 !important;
+        }
+
+        /* Flex Containers for content areas */
+        .practice-container, .sentence-container, #lesson-dashboard {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden !important;
+            margin-bottom: 0 !important;
+        }
+
+        #lesson-grid {
+            flex: 1;
+            overflow: hidden !important;
+            align-content: start; /* keep items at top */
+        }
+
+        #lesson-active {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden !important;
+        }
+
+        #active-lesson-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden !important;
+        }
+
+        /* Flashcard Size Reduction */
+        #active-lesson-content > div > div {
+            min-height: 0 !important; /* override 350px min-height */
+            padding: 1.5rem !important;
+        }
+        
+        /* Practice/Sentence Card Adjustments */
+        .question-card, .sentence-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 1.5rem !important;
+            margin-bottom: 1rem !important;
+        }
+        .options-grid {
+            margin-bottom: 0 !important;
+        }
+
+        /* Reading adjustments */
+        #reading-content {
+            font-size: 1.1rem !important;
+            line-height: 1.5 !important;
+            margin-bottom: 0.5rem !important;
+            flex: 1;
+            overflow-y: auto; /* Internal scrolling only if absolute necessary, but hidden globally */
+        }
+
+        /* Quiz active layout */
+        #quiz-active {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden !important;
+        }
+        .quiz-layout-container {
+            flex: 1;
+            overflow: hidden !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background Shapes -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+    <div class="bg-shape shape-3"></div>
+    <div class="bg-shape shape-4"></div>
+
+    <!-- Magic Spotlight Cursor -->
+    <div id="glow-cursor"></div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="logo">
+                <div class="logo-icon"><i class="ri-fire-fill"></i></div>
+                <h1>HSK Master</h1>
+            </div>
+            
+            <div class="sidebar-content">
+                <div class="nav-group">
+                    <div class="nav-group-title">Học Tập</div>
+                    <ul class="nav-links">
+                        <li class="active" data-tab="learn">
+                            <i class="ri-book-open-line"></i>
+                            <span>Từ Vựng</span>
+                        </li>
+                        <li data-tab="practice">
+                            <i class="ri-gamepad-line"></i>
+                            <span>Luyện Tập</span>
+                        </li>
+                        <li data-tab="sentence">
+                            <i class="ri-translate-2"></i>
+                            <span>Luyện Câu</span>
+                        </li>
+                        <li data-tab="listening">
+                            <i class="ri-headphone-line"></i>
+                            <span>Luyện Nghe</span>
+                        </li>
+                        <li data-tab="reading">
+                            <i class="ri-book-read-line"></i>
+                            <span>Luyện Đọc</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-group">
+                    <div class="nav-group-title">Đánh Giá</div>
+                    <ul class="nav-links">
+                        <li data-tab="quiz">
+                            <i class="ri-test-tube-line"></i>
+                            <span>Kiểm Tra</span>
+                        </li>
+                        <li data-tab="mock-exam">
+                            <i class="ri-file-paper-2-line"></i>
+                            <span>Thi Thử</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-group">
+                    <div class="nav-group-title">Mở Rộng</div>
+                    <ul class="nav-links">
+                        <li data-tab="aichat">
+                            <i class="ri-chat-smile-line"></i>
+                            <span>AI Chat</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+            
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <div class="date-display" id="current-date"><i class="ri-calendar-line"></i> <span>Hôm nay</span></div>
+                </div>
+                <div class="top-bar-right">
+                    <label for="hsk-level-selector" style="font-weight: 600; color: var(--text-muted); margin-right: 10px;">Cấp độ:</label>
+                    <select id="hsk-level-selector" class="hsk-selector">
+                        <option value="1">HSK 1</option>
+                        <option value="2">HSK 2</option>
+                        <option value="3">HSK 3</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Tab: Học từ vựng (Flashcard) -->
+            <section id="tab-learn" class="tab-content active">
+                <header id="learn-tab-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h2 id="learn-title">Học Từ Vựng HSK 1</h2>
+                        <p style="margin-bottom: 0;">Lộ trình học được chia thành các "Chặng" nhỏ giúp bạn tiếp thu hiệu quả mà không bị nhàm chán.</p>
+                    </div>
+                    <div class="filter-bar" style="margin-bottom: 0;">
+                        <button class="btn" id="reset-vocab-progress-btn" style="color: var(--danger); border-color: rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.05);"><i class="ri-refresh-line"></i> Đặt lại tiến trình</button>
+                    </div>
+                </header>
+
+                <!-- Lộ trình học (Dashboard) -->
+                <div id="lesson-dashboard">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; background: white; padding: 1.5rem; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid var(--border-color);">
+                        <div>
+                            <h3 style="font-size: 1.2rem; color: var(--text-main); margin-bottom: 0.5rem;">Tổng quan tiến độ</h3>
+                            <p style="color: var(--text-muted); font-size: 0.95rem;">Bạn đã hoàn thành <strong id="vocab-total-learned-dashboard" style="color: var(--primary-color);">0</strong> / <span id="vocab-total-dashboard">0</span> từ vựng</p>
+                        </div>
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: conic-gradient(var(--success) 0%, var(--border-color) 0%); display: flex; align-items: center; justify-content: center; position: relative;">
+                            <div style="width: 48px; height: 48px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; color: var(--success);" id="vocab-total-pct">0%</div>
+                        </div>
+                    </div>
+
+                    <div id="lesson-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+                        <!-- JS generates lesson cards here -->
+                    </div>
+                </div>
+
+                <!-- Chi tiết 1 chặng học -->
+                <div id="lesson-active" class="hidden">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; border-bottom: 2px solid var(--border-color); padding-bottom: 1rem;">
+                        <button class="btn" id="back-to-lessons-btn" style="padding: 0.5rem 1rem;"><i class="ri-arrow-left-line"></i> Quay lại</button>
+                        <h3 id="active-lesson-title" style="margin: 0; font-size: 1.5rem; color: var(--primary-color);">Chặng 1</h3>
+                        <div style="font-weight: 600; color: var(--success);"><i class="ri-check-double-line"></i> <span id="active-lesson-progress">0/10</span></div>
+                    </div>
+                    
+                    <div id="active-lesson-content" style="display: flex; flex-direction: column; gap: 1rem; max-width: 800px; margin: 0 auto;">
+                        <!-- JS generates interactive words here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: Luyện tập -->
+            <section id="tab-practice" class="tab-content">
+                <header>
+                    <h2>Luyện Tập Phản Xạ</h2>
+                    <p>Chọn đáp án đúng nhất cho từ dưới đây.</p>
+                </header>
+
+                <div class="practice-container">
+                    <div class="score-display">Điểm: <span id="practice-score">0</span></div>
+                    <div class="question-card" id="practice-question">
+                        <!-- Question content -->
+                    </div>
+                    <div class="options-grid" id="practice-options">
+                        <!-- Options generated here -->
+                    </div>
+                    <button class="btn primary-btn hidden" id="next-practice-btn">Câu tiếp theo</button>
+                </div>
+            </section>
+
+            <!-- Tab: Luyện Câu & Dịch Thuật -->
+            <section id="tab-sentence" class="tab-content">
+                <header>
+                    <h2>Luyện Câu & Dịch Thuật</h2>
+                    <p>Sắp xếp từ thành câu hoàn chỉnh và luyện dịch thuật.</p>
+                </header>
+
+                <div class="sentence-container">
+                    <div class="sentence-card">
+                        <h3 class="sentence-mode-title" id="sentence-mode-title">Chế độ: Sắp xếp câu</h3>
+                        <div class="sentence-question" id="sentence-question">
+                            <!-- Question text goes here -->
+                        </div>
+                        
+                        <!-- Area for word sorting -->
+                        <div id="sentence-sorting-area">
+                            <div class="word-drop-zone" id="word-drop-zone">
+                                <!-- Selected words will appear here -->
+                            </div>
+                            <div class="word-options" id="word-options">
+                                <!-- Available words to click -->
+                            </div>
+                        </div>
+
+                        <!-- Area for translation input -->
+                        <div id="sentence-translation-area" class="hidden">
+                            <input type="text" id="translation-input" class="translation-input" placeholder="Nhập câu trả lời của bạn..." autocomplete="off">
+                            <div id="translation-feedback" class="feedback-msg"></div>
+                        </div>
+
+                        <div class="sentence-actions">
+                            <button class="btn primary-btn" id="check-sentence-btn">Kiểm Tra</button>
+                            <button class="btn" id="next-sentence-btn">Câu Tiếp Theo</button>
+                        </div>
+                        
+                        <!-- Grammar Analysis Area -->
+                        <div id="sentence-grammar-analysis" class="hidden" style="margin-top: 1.5rem; padding: 1.5rem; background: rgba(59, 130, 246, 0.05); border-radius: 16px; border: 2px dashed rgba(59, 130, 246, 0.2); text-align: left;">
+                            <h4 style="color: var(--primary-color); margin-bottom: 0.5rem; font-size: 1.1rem;"><i class="ri-magic-line"></i> Phân Tích Ngữ Pháp (AI)</h4>
+                            <div id="grammar-analysis-content" style="color: var(--text-main); line-height: 1.6; font-size: 0.95rem;">Đang tải...</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: Luyện Nghe -->
+            <section id="tab-listening" class="tab-content">
+                <header>
+                    <h2>Luyện Nghe Phản Xạ</h2>
+                    <p>Nhấp vào biểu tượng loa để nghe và chọn đáp án đúng nhất.</p>
+                </header>
+
+                <div class="practice-container">
+                    <div class="score-display">Điểm: <span id="listening-score">0</span></div>
+                    <div class="question-card" id="listening-question" style="cursor: pointer;">
+                        <i class="ri-volume-up-fill" style="font-size: 5rem; color: var(--primary-color);"></i>
+                        <p style="font-size: 1rem; color: var(--text-muted); font-weight: 400; margin-top: 1rem;">Nhấp để nghe lại</p>
+                    </div>
+                    <div class="options-grid" id="listening-options">
+                        <!-- Options generated here -->
+                    </div>
+                    
+                    <div id="listening-result-display" class="hidden" style="margin-top: 1.5rem; margin-bottom: 1.5rem; padding: 1.5rem; background: rgba(34, 197, 94, 0.1); border: 2px dashed rgba(34, 197, 94, 0.3); border-radius: 16px; text-align: center;">
+                        <!-- Full sentence info will appear here -->
+                    </div>
+
+                    <button class="btn primary-btn hidden" id="next-listening-btn">Câu tiếp theo</button>
+                </div>
+            </section>
+
+            <!-- Tab: Luyện Đọc -->
+            <section id="tab-reading" class="tab-content">
+                <header>
+                    <h2>Luyện Đọc Hiểu</h2>
+                    <p>Đọc đoạn văn và rèn luyện kỹ năng dịch thuật.</p>
+                </header>
+
+                <div class="sentence-container">
+                    <div class="sentence-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                            <h3 class="sentence-mode-title" id="reading-title" style="margin-bottom: 0;">Tiêu đề</h3>
+                            <button class="btn" id="toggle-pinyin-btn" style="background: rgba(79, 70, 229, 0.1); color: var(--primary-color); padding: 0.5rem 1rem;">Tắt Pinyin</button>
+                        </div>
+                        
+                        <div id="reading-content" style="font-size: 1.75rem; line-height: 2; margin-bottom: 2rem; color: var(--text-main);">
+                            <!-- Reading text -->
+                        </div>
+                        
+                        <div id="reading-translation" class="hidden" style="font-size: 1.1rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 1.5rem; margin-bottom: 2rem;">
+                            <!-- Translation text -->
+                        </div>
+
+                        <div id="reading-speech-feedback" class="hidden" style="margin-bottom: 2rem; padding: 1.5rem; border-radius: 16px; background: #f8fafc; border: 2px dashed var(--border-color);">
+                            <h4 style="margin-bottom: 0.5rem; color: var(--text-main);">Kết quả đọc của bạn:</h4>
+                            <p id="speech-result-text" style="font-size: 1.25rem; color: var(--primary-color); margin-bottom: 0.5rem;"></p>
+                            <p id="speech-accuracy" style="font-weight: 600;"></p>
+                        </div>
+
+                        <div class="sentence-actions" style="flex-wrap: wrap;">
+                            <button class="btn primary-btn" id="toggle-translation-btn">Xem bản dịch</button>
+                            <button class="btn" id="listen-reading-btn"><i class="ri-volume-up-line"></i> Đọc mẫu</button>
+                            <button class="btn" id="record-reading-btn" style="color: var(--danger);"><i class="ri-mic-line"></i> Bắt đầu thu âm</button>
+                            <button class="btn" id="next-reading-btn" style="margin-left: auto;">Đoạn Tiếp Theo</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: Kiểm tra -->
+            <section id="tab-quiz" class="tab-content">
+                <header>
+                    <h2>Bài Kiểm Tra Cuối Khóa</h2>
+                    <p>Hoàn thành 20 câu hỏi ngẫu nhiên để đánh giá năng lực của bạn.</p>
+                </header>
+
+                <div id="quiz-intro" class="quiz-state-container">
+                    <div class="quiz-icon"><i class="ri-award-fill"></i></div>
+                    <h3>Sẵn sàng chưa?</h3>
+                    <p>Bài kiểm tra sẽ trộn lẫn Trắc nghiệm Từ vựng và Ngữ pháp (Dịch thuật/Sắp xếp câu).</p>
+                    <div style="display: flex; gap: 1rem; justify-content: center;">
+                        <button class="btn primary-btn large-btn" id="start-combined-quiz-btn" style="width: 100%; max-width: 300px;">Bắt Đầu Kiểm Tra<br><span style="font-size: 0.9rem; font-weight: 400;">(Tối đa 30 câu / 10 phút)</span></button>
+                    </div>
+                </div>
+
+                <div id="quiz-active" class="quiz-state-container hidden">
+                    <div class="quiz-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <div class="quiz-progress" style="margin-bottom: 0; flex: 1; margin-right: 1rem;">
+                            <span>Câu <span id="quiz-current-num">1</span>/<span id="quiz-total-num">20</span></span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="quiz-progress-fill" style="width: 5%;"></div>
+                            </div>
+                        </div>
+                        <div class="quiz-timer" style="font-size: 1.25rem; font-weight: 700; color: var(--danger); min-width: 80px; text-align: right;">
+                            <i class="ri-timer-line"></i> <span id="quiz-time-left">600</span>s
+                        </div>
+                    </div>
+
+                    <style>
+                        .quiz-layout-container {
+                            display: flex;
+                            gap: 2rem;
+                            align-items: flex-start;
+                        }
+                        .quiz-palette-wrapper {
+                            width: 140px;
+                            flex-shrink: 0;
+                            background: var(--surface-color);
+                            padding: 1rem;
+                            border-radius: 16px;
+                            border: 1px solid var(--border-color);
+                        }
+                        .quiz-content-wrapper {
+                            flex: 1;
+                            min-width: 0;
+                        }
+                        @media (max-width: 768px) {
+                            .quiz-layout-container {
+                                flex-direction: column;
+                            }
+                            .quiz-palette-wrapper {
+                                width: 100%;
+                            }
+                            #quiz-palette {
+                                grid-template-columns: repeat(5, 1fr) !important;
+                            }
+                        }
+                    </style>
+                    <div class="quiz-layout-container">
+                        <!-- Quiz Palette (Left Sidebar) -->
+                        <div class="quiz-palette-wrapper">
+                            <h3 style="margin-bottom: 1rem; font-size: 1rem; color: var(--text-main); text-align: center;">Câu hỏi</h3>
+                            <div id="quiz-palette" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
+                                <!-- Generated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Quiz Content (Right Area) -->
+                        <div class="quiz-content-wrapper">
+                            <div id="quiz-vocab-area">
+                                <div class="question-card" id="quiz-question" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px;">
+                                    <div id="quiz-question-text"></div>
+                                    <div id="quiz-question-audio" class="hidden" style="cursor: pointer;">
+                                        <i class="ri-volume-up-fill" style="font-size: 5rem; color: var(--primary-color);"></i>
+                                        <p style="font-size: 1rem; color: var(--text-muted); font-weight: 400; margin-top: 1rem;">Nhấp để nghe lại</p>
+                                    </div>
+                                </div>
+                                <div class="options-grid" id="quiz-options">
+                                    <!-- Quiz options -->
+                                </div>
+                            </div>
+
+                            <div id="quiz-speaking-area" class="hidden" style="text-align: center; background: var(--surface-color); padding: 2rem; border-radius: 16px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+                                <h3 class="sentence-mode-title" style="margin-bottom: 1rem;">Nói (Thu Âm)</h3>
+                                <div class="sentence-question" id="quiz-speaking-text" style="font-size: 3rem; margin-bottom: 1.5rem; color: var(--primary-color);"></div>
+                                <p style="margin-bottom: 1.5rem; color: var(--text-muted);">Nhấn nút bên dưới và đọc to từ trên.</p>
+                                
+                                <div id="quiz-speaking-feedback" class="feedback-msg" style="margin-bottom: 1rem; min-height: 24px;"></div>
+                                
+                                <button class="btn large-btn" id="quiz-record-btn" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);"><i class="ri-mic-line"></i> Bắt đầu thu âm</button>
+                            </div>
+
+                            <div id="quiz-sentence-area" class="hidden" style="text-align: left; background: var(--surface-color); padding: 2rem; border-radius: 16px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+                                <h3 class="sentence-mode-title" id="quiz-sentence-mode-title" style="margin-bottom: 1rem;">Chế độ</h3>
+                                <div class="sentence-question" id="quiz-sentence-question" style="font-size: 1.5rem; margin-bottom: 1.5rem;"></div>
+                                
+                                <div id="quiz-sentence-sorting-area" class="hidden">
+                                    <div class="word-drop-zone" id="quiz-word-drop-zone"></div>
+                                    <div class="word-options" id="quiz-word-options"></div>
+                                </div>
+
+                                <div id="quiz-sentence-translation-area" class="hidden">
+                                    <input type="text" id="quiz-translation-input" class="translation-input" placeholder="Nhập câu trả lời của bạn..." autocomplete="off">
+                                </div>
+
+                                <div id="quiz-sentence-feedback" class="feedback-msg"></div>
+                                <button class="btn primary-btn" id="quiz-check-btn" style="width: 100%;">Lưu Đáp Án</button>
+                            </div>
+                            
+                            <div style="margin-top: 2rem; display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+                                <button class="btn" id="quiz-prev-btn"><i class="ri-arrow-left-line"></i> Câu trước</button>
+                                <button class="btn" id="quiz-submit-exam-btn" style="background: var(--danger); color: white; border-color: var(--danger-shadow); box-shadow: 0 4px 0 var(--danger-shadow);"><i class="ri-check-double-line"></i> Nộp Bài</button>
+                                <button class="btn" id="quiz-next-btn">Câu tiếp <i class="ri-arrow-right-line"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="quiz-result" class="quiz-state-container hidden">
+                    <h2 id="quiz-result-title" class="section-title">Kết Quả</h2>
+                    <p id="quiz-timeout-msg" class="hidden" style="color: var(--danger); margin-bottom: 1rem; font-weight: 600;">Hết thời gian làm bài!</p>
+                    <div class="result-score" id="quiz-final-score">100%</div>
+                    <p id="quiz-result-msg" style="font-size: 1.25rem; color: var(--text-muted); margin-bottom: 2rem;">Tuyệt vời!</p>
+                    <div class="action-buttons" style="justify-content: center; margin-bottom: 2rem;">
+                        <button class="btn primary-btn" id="restart-quiz-btn"><i class="ri-refresh-line"></i> Làm Lại</button>
+                    </div>
+
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 2rem; text-align: left;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                            <h3 style="font-size: 1.5rem; color: var(--text-main);">Chi Tiết Bài Làm</h3>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-muted);">
+                                <input type="checkbox" id="quiz-filter-wrong" style="width: 18px; height: 18px;">
+                                Chỉ hiển thị câu sai / bỏ trống
+                            </label>
+                        </div>
+                        <div id="quiz-detailed-results" style="display: flex; flex-direction: column; gap: 1rem;">
+                            <!-- Generated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: Thi Thử HSK -->
+            <section id="tab-mock-exam" class="tab-content">
+                <header>
+                    <h2>Thi Thử HSK Trực Tuyến</h2>
+                    <p>Mô phỏng bài thi thực tế với cấu trúc và thời gian chuẩn.</p>
+                </header>
+
+                <!-- Exam Selection -->
+                <div id="mock-exam-intro" class="quiz-state-container">
+                    <div class="quiz-icon" style="color: var(--primary-color);"><i class="ri-file-list-3-fill"></i></div>
+                    <h3>Chọn Đề Thi</h3>
+                    <p id="mock-exam-level-desc">Đang tải danh sách đề thi...</p>
+                    
+                    <div id="mock-exam-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-top: 2rem; text-align: left;">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+
+                <!-- Exam Active Interface -->
+                <div id="mock-exam-active" class="quiz-state-container hidden" style="max-width: 800px;">
+                    <div class="quiz-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 2px solid var(--border-color); padding-bottom: 1rem;">
+                        <h3 id="mock-exam-active-title" style="margin: 0; font-size: 1.25rem;">Đề Thi HSK 1 - Số 1</h3>
+                        <div class="quiz-timer" style="font-size: 1.25rem; font-weight: 700; color: var(--danger);">
+                            <i class="ri-timer-line"></i> <span id="mock-exam-time-left">00:00</span>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 2rem; align-items: flex-start; text-align: left;">
+                        <!-- Navigation Palette -->
+                        <div class="quiz-palette-wrapper" style="width: 200px;">
+                            <h4 style="margin-bottom: 1rem; font-size: 1rem;">Danh sách câu hỏi</h4>
+                            <div id="mock-exam-palette" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; max-height: 400px; overflow-y: auto; padding-right: 0.5rem;">
+                                <!-- Generated by JS -->
+                            </div>
+                            <div style="margin-top: 1rem; border-top: 2px solid var(--border-color); padding-top: 1rem;">
+                                <button class="btn primary-btn" id="mock-exam-submit-early-btn" style="width: 100%; background: var(--danger); box-shadow: 0 4px 0 var(--danger-shadow);">Nộp Bài</button>
+                            </div>
+                        </div>
+
+                        <!-- Question Content -->
+                        <div class="quiz-content-wrapper" style="flex: 1; background: var(--surface-color); border: 2px solid var(--border-color); border-radius: 16px; padding: 2rem;">
+                            <div style="margin-bottom: 1rem; font-weight: 600; color: var(--primary-color); text-transform: uppercase; font-size: 0.9rem;" id="mock-exam-section-name">Phần Nghe</div>
+                            
+                            <div id="mock-exam-question-area">
+                                <div id="mock-exam-audio-container" class="hidden" style="margin-bottom: 1.5rem; text-align: center;">
+                                    <button class="btn" id="mock-exam-play-audio-btn" style="border-radius: 50%; width: 60px; height: 60px; padding: 0;"><i class="ri-play-fill" style="font-size: 2rem;"></i></button>
+                                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Nhấp để nghe (Tối đa 2 lần)</p>
+                                </div>
+                                
+                                <div id="mock-exam-question-text" style="font-size: 1.5rem; font-weight: 600; margin-bottom: 2rem; min-height: 60px;"></div>
+                                
+                                <div id="mock-exam-options" class="options-grid" style="grid-template-columns: 1fr;">
+                                    <!-- Options -->
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; justify-content: space-between; margin-top: 2rem; border-top: 2px solid var(--border-color); padding-top: 1.5rem;">
+                                <button class="btn" id="mock-exam-prev-btn"><i class="ri-arrow-left-line"></i> Câu trước</button>
+                                <button class="btn" id="mock-exam-next-btn">Câu tiếp <i class="ri-arrow-right-line"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exam Result -->
+                <div id="mock-exam-result" class="quiz-state-container hidden">
+                    <h2 class="section-title">Kết Quả Thi Thử</h2>
+                    <div class="result-circle" style="margin-top: 2rem;">
+                        <span class="score-text" id="mock-exam-final-score">0/200</span>
+                    </div>
+                    <p id="mock-exam-status-msg" style="font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem;">Đang chấm điểm...</p>
+                    
+                    <div class="action-buttons" style="justify-content: center; margin-bottom: 2rem;">
+                        <button class="btn primary-btn" id="mock-exam-back-btn">Quay lại danh sách</button>
+                    </div>
+
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 2rem; text-align: left;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                            <h3 style="font-size: 1.5rem; color: var(--text-main);">Chi Tiết Bài Làm</h3>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-muted);">
+                                <input type="checkbox" id="mock-exam-filter-wrong" style="width: 18px; height: 18px;">
+                                Chỉ hiển thị câu sai / bỏ trống
+                            </label>
+                        </div>
+                        <div id="mock-exam-detailed-results" style="display: flex; flex-direction: column; gap: 1rem;">
+                            <!-- Generated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: Giao Tiếp AI -->
+            <section id="tab-aichat" class="tab-content">
+                <header>
+                    <h2>Luyện Giao Tiếp (AI)</h2>
+                    <p>Gửi hình ảnh và trò chuyện với gia sư AI theo cấp độ HSK bạn đang chọn.</p>
+                </header>
+
+                <div class="sentence-container" style="max-width: 800px; display: flex; flex-direction: column; height: calc(100vh - 200px);">
+                    
+                    <!-- API Key Configuration -->
+                    <!-- API Key Configuration -->
+                    <div id="ai-key-container" class="sentence-card" style="margin-bottom: 1.5rem;">
+                        <h3 class="sentence-mode-title" style="margin-bottom: 0.5rem;">Cấu Hình Nguồn AI & API Key</h3>
+                        <p style="margin-bottom: 1rem; color: var(--text-muted); font-size: 0.95rem;" id="ai-key-instructions">Bạn có thể chọn nhà cung cấp AI và nhập API Key tương ứng. Key được lưu trữ cục bộ trên máy của bạn.</p>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1rem;">
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <select id="ai-provider" class="translation-input" style="margin-bottom: 0; flex: 1; min-width: 150px; padding: 0.75rem 1rem; cursor: pointer;">
+                                    <option value="gemini">Google Gemini (Mặc định)</option>
+                                    <option value="openrouter">OpenRouter (Qwen, Llama...)</option>
+                                    <option value="alibabacloud">Alibaba Cloud (Qwen Chính Hãng)</option>
+                                </select>
+                                <input type="text" id="ai-model-id" class="translation-input hidden" style="margin-bottom: 0; flex: 1; min-width: 200px; padding: 0.75rem 1rem;" placeholder="Mã mô hình (VD: qwen/qwen3-next-80b-a3b-instruct:free)" value="qwen/qwen3-next-80b-a3b-instruct:free" title="Mã mô hình trên OpenRouter">
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <input type="password" id="gemini-api-key" class="translation-input" style="margin-bottom: 0; flex: 1; min-width: 200px; padding: 0.75rem 1rem;" placeholder="Nhập một hoặc nhiều API Key (cách nhau bằng dấu phẩy)...">
+                                <button class="btn primary-btn" id="save-api-key-btn" style="white-space: nowrap;">Lưu Thiết Lập</button>
+                            </div>
+                        </div>
+                        
+                        <p style="margin-top: 1rem; font-size: 0.85rem;" id="ai-key-link-container">
+                            <a href="https://aistudio.google.com/app/apikey" id="ai-key-link" target="_blank" style="color: var(--primary-color); text-decoration: underline;">Nhấn vào đây để tạo Gemini API Key miễn phí</a>
+                        </p>
+                    </div>
+
+                    <!-- Chat Interface -->
+                    <div id="ai-chat-interface" class="sentence-card hidden" style="flex: 1; display: flex; flex-direction: column; padding: 0; overflow: hidden; border-radius: 20px;">
+                        <!-- API Key Change Button (Top right) -->
+                        <div style="padding: 0.75rem 1.5rem; border-bottom: 2px solid var(--border-color); background: #f8fafc; display: flex; justify-content: flex-end;">
+                            <button id="reset-api-key-btn" class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;"><i class="ri-key-2-line"></i> Đổi API Key</button>
+                        </div>
+
+                        <!-- Messages Area -->
+                        <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                            <!-- Messages will be generated here -->
+                            <div class="chat-message ai">
+                                <div class="chat-avatar"><i class="ri-robot-2-fill"></i></div>
+                                <div class="chat-bubble">Chào bạn! Hãy tải lên một bức ảnh và nói điều gì đó, chúng ta sẽ luyện tập tiếng Trung cùng nhau nhé! 😊</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Input Area -->
+                        <div style="border-top: 2px solid var(--border-color); padding: 1rem; background: #ffffff; border-radius: 0 0 20px 20px;">
+                            <div id="chat-image-preview" class="hidden" style="margin-bottom: 1rem; position: relative; display: inline-block;">
+                                <img id="preview-img" src="" style="max-height: 80px; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                <button id="remove-image-btn" style="position: absolute; top: -10px; right: -10px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"><i class="ri-close-line"></i></button>
+                            </div>
+                            
+                            <div style="display: flex; gap: 0.75rem; align-items: flex-end;">
+                                <button class="btn" id="attach-image-btn" style="padding: 0; border-radius: 12px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><i class="ri-image-add-line" style="font-size: 1.5rem;"></i></button>
+                                <input type="file" id="chat-file-input" accept="image/png, image/jpeg, image/webp, image/heic, image/heif" class="hidden">
+                                
+                                <button class="btn" id="record-chat-btn" style="padding: 0; border-radius: 12px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; color: var(--danger); flex-shrink: 0;" title="Nhấn để thu âm"><i class="ri-mic-line" style="font-size: 1.5rem;"></i></button>
+
+                                <textarea id="chat-input" class="translation-input" style="margin-bottom: 0; padding: 0.75rem 1rem; height: 48px; min-height: 48px; max-height: 120px; resize: none; overflow-y: auto; border-radius: 12px; font-size: 1rem; line-height: 1.5;" placeholder="Nhấn nút Micro để nói..."></textarea>
+                                
+                                <button class="btn primary-btn" id="send-chat-btn" style="padding: 0; border-radius: 12px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><i class="ri-send-plane-fill" style="font-size: 1.5rem;"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
